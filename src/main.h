@@ -596,7 +596,11 @@ public:
     {
         // Large (in bytes) low-priority (new, small-coin) transactions
         // need a fee.
-        return dPriority > COIN * 144 / 250;
+        
+		//Bitcoin NFTF Patch - changed by ShadowOfHarbringer START
+		//return dPriority > COIN * 144 / 250;
+		return true;
+		//Bitcoin NFTF Patch - changed by ShadowOfHarbringer END
     }
 
     int64 GetMinFee(unsigned int nBlockSize=1, bool fAllowFree=true, bool fForRelay=false) const
