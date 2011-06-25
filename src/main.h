@@ -598,10 +598,7 @@ public:
         // Large (in bytes) low-priority (new, small-coin) transactions
         // need a fee.
 
-        //Bitcoin NFTF Patch - changed by ShadowOfHarbringer START
-        //return dPriority > COIN * 144 / 250;
-        return true;
-        //Bitcoin NFTF Patch - changed by ShadowOfHarbringer END
+        return dPriority > COIN * 144 / 250;
 
     }
 
