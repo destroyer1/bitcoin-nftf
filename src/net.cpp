@@ -3,6 +3,11 @@
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
 #include "headers.h"
+#include "irc.h"
+#include "db.h"
+#include "net.h"
+#include "init.h"
+#include "strlcpy.h"
 
 #ifdef USE_UPNP
 #include <miniupnpc/miniwget.h>
@@ -1112,7 +1117,7 @@ void MapPort(bool fMapPort)
     if (fUseUPnP != fMapPort)
     {
         fUseUPnP = fMapPort;
-        CWalletDB().WriteSetting("fUseUPnP", fUseUPnP);
+        WriteSetting("fUseUPnP", fUseUPnP);
     }
     if (fUseUPnP && vnThreadsRunning[5] < 1)
     {
@@ -1693,7 +1698,7 @@ void StartNode(void* parg)
         printf("Error: CreateThread(ThreadMessageHandler) failed\n");
 
     // Generate coins in the background
-    GenerateBitcoins(fGenerateBitcoins);
+    GenerateBitcoins(fGenerateBitcoins, pwalletMain);
 }
 
 bool StopNode()
