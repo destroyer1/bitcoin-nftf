@@ -826,7 +826,8 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                 int64 nPayFee = nTransactionFee * (1 + (int64)nBytes / 1000);
                 
                 //Bitcoin NFTF Patch - changed by ShadowOfHarbringer START
-                int64 nMinFee = wtxNew.GetMinFee(1, true);
+                bool fAllowFree = true;
+                int64 nMinFee = wtxNew.GetMinFee(1, fAllowFree);
                 //Bitcoin NFTF Patch - changed by ShadowOfHarbringer END
                 
                 if (nFeeRet < max(nPayFee, nMinFee))
