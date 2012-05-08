@@ -4,6 +4,9 @@
  * W.J. van der Laan 20011-2012
  * The Bitcoin Developers 20011-2012
  */
+
+#include "checkpoints.h"
+
 #include "bitcoingui.h"
 #include "transactiontablemodel.h"
 #include "addressbookpage.h"
@@ -515,7 +518,7 @@ void BitcoinGUI::setNumBlocks(int count)
     }
 
     // Set icon state: spinning if catching up, tick otherwise
-    if(secs < 30*60)
+    if(secs < 90*60 && count >= Checkpoints::GetTotalBlocksEstimate())
     {
         tooltip = tr("Up to date") + QString(".\n") + tooltip;
         labelBlocksIcon->setPixmap(QIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
@@ -551,10 +554,19 @@ void BitcoinGUI::refreshStatusBar()
     setNumBlocks(clientModel->getNumBlocks());
 }
 
-void BitcoinGUI::error(const QString &title, const QString &message)
+bool HACK_SHUTDOWN = false;
+
+void BitcoinGUI::error(const QString &title, const QString &message, bool modal)
 {
     // Report errors from network/worker thread
-    notificator->notify(Notificator::Critical, title, message);
+    if (modal)
+    {
+        QMessageBox::critical(this, title, message, QMessageBox::Ok, QMessageBox::Ok);
+        if (HACK_SHUTDOWN)
+            QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
+    } else {
+        notificator->notify(Notificator::Critical, title, message);
+    }
 }
 
 void BitcoinGUI::changeEvent(QEvent *e)
@@ -709,7 +721,7 @@ void BitcoinGUI::gotoMessagePage(QString addr)
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)
 {
-    // Accept only URLs
+    // Accept only URIs
     if(event->mimeData()->hasUrls())
         event->acceptProposedAction();
 }
@@ -719,20 +731,20 @@ void BitcoinGUI::dropEvent(QDropEvent *event)
     if(event->mimeData()->hasUrls())
     {
         gotoSendCoinsPage();
-        QList<QUrl> urls = event->mimeData()->urls();
-        foreach(const QUrl &url, urls)
+        QList<QUrl> uris = event->mimeData()->urls();
+        foreach(const QUrl &uri, uris)
         {
-            sendCoinsPage->handleURL(url.toString());
+            sendCoinsPage->handleURI(uri.toString());
         }
     }
 
     event->acceptProposedAction();
 }
 
-void BitcoinGUI::handleURL(QString strURL)
+void BitcoinGUI::handleURI(QString strURI)
 {
     gotoSendCoinsPage();
-    sendCoinsPage->handleURL(strURL);
+    sendCoinsPage->handleURI(strURI);
 
     if(!isActiveWindow())
         activateWindow();
